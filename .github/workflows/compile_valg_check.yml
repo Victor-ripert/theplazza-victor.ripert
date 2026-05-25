@@ -1,0 +1,23 @@
+name: Compilation and Valgrind Check
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y valgrind libconfig++-dev pkg-config
+
+      - name: Compile
+        run: make
+
+      - name: Memory Leak Check (Valgrind)
+        run: valgrind --leak-check=full --error-exitcode=84 ./plazza
