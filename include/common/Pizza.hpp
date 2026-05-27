@@ -36,4 +36,17 @@ struct Pizza {
     size_t id;
 };
 
+enum class Ingredient {
+    Dough,
+    Tomato,
+    Gruyere,
+    Ham,
+    Mushrooms,
+    Steak,
+    Eggplant,
+    GoatCheese,
+    ChiefLove,
+    Count
+};
+
 #endif
