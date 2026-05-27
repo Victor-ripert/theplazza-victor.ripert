@@ -15,6 +15,7 @@
     #define KITCHEN_HPP_
 
 #include "../ipc/IPCNetwork.hpp"
+#include "../ipc/Serializer.hpp"
 #include "ThreadPool.hpp"
 #include "Stock.hpp"
 
@@ -32,6 +33,7 @@ class Kitchen {
         int _restockTime;
         float _multiplier;
 
+        Serializer _serializer;
         IPCNetwork _ipc;
         Stock _stock;
         ThreadPool _threadPool;
