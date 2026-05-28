@@ -28,20 +28,23 @@ class ThreadPool {
         ~ThreadPool();
 
         void enqueuePizza(const Pizza& pizza);
-        int getActiveCooks() const;
+        int getActiveCooks();
+        void endPool();
 
     private:
         void workerRoutine();
+        void cook(Pizza &pizza);
 
         std::vector<std::unique_ptr<Thread>> _workers;
         std::queue<Pizza> _pizzaQueue;
         Mutex _queueMutex;
+        Mutex _activeMutex;
         ConditionVariable _condition;
 
         Stock& _stockReference;
         float _multiplier;
-        bool _stopRequested;
-        int _activeCooks;
+        int _activeCooks = 0;
+        bool _running;
 };
 
 #endif
