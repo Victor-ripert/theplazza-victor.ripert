@@ -13,7 +13,8 @@ Kitchen::Kitchen(int cooksCount, int restockTime, float multiplier)
 };
 
 Kitchen::~Kitchen() {
-
+    _stock.stopRestockLoop();
+    _threadPool.endPool();
 };
 
 void Kitchen::run() {

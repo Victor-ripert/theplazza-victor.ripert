@@ -11,8 +11,10 @@ ThreadPool::ThreadPool(int size, Stock& stock, float multiplier)
     : _stockReference(stock), _multiplier(multiplier), _running(true)
 {
     _workers.reserve(size);
-    for (int i = 0; i < size; ++i)
-        _workers.emplace_back(std::make_unique<Thread>([this] { workerRoutine(); }));
+    for (int i = 0; i < size; ++i) {
+        _workers.emplace_back(std::make_unique<Thread>());
+        _workers[i]->start([this] { workerRoutine(); });
+    }
 }
 
 ThreadPool::~ThreadPool() {
@@ -37,7 +39,7 @@ int ThreadPool::getActiveCooks() {
 };
 
 void ThreadPool::cook(Pizza &pizza) {
-    // _stockReference.takeIngredients()
+    _stockReference.waitAndTakeIngredients(pizza);
 };
 
 
@@ -64,3 +66,8 @@ void ThreadPool::workerRoutine() {
         _activeMutex.unlock();
     }
 };
+
+void ThreadPool::endPool() {
+    if (_running)
+        _running = false;
+}

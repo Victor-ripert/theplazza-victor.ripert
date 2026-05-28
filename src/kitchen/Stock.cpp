@@ -7,7 +7,7 @@
 
 #include "kitchen/Stock.hpp"
 
-Stock::Stock(int restockTimeMs) : _restockTimeMs(restockTimeMs) {
+Stock::Stock(int restockTimeMs) : _restockTimeMs(restockTimeMs){
     _ingredients.fill(5);
 };
 
@@ -16,7 +16,7 @@ Stock::~Stock() {
 };
 
 Stock::Recipe Stock::getRecipeForPizza(PizzaType type) {
-    Recipe recipe;
+    Recipe recipe{};
 
     switch (type) {
         case PizzaType::Margarita:
@@ -54,42 +54,63 @@ Stock::Recipe Stock::getRecipeForPizza(PizzaType type) {
     return recipe;
 }
 
-bool Stock::takeIngredients(const Pizza& pizza) {
+bool Stock::canTakeIngredients(const Pizza& pizza) {
     Recipe recipe = getRecipeForPizza(pizza.type);
-    _mutex.lock();
-    for (int i = 0; i < static_cast<size_t>(Ingredient::Count); i++) {
-        if (recipe[i] > _ingredients[i]) {
-            _mutex.unlock();
+    for (size_t i = 0; i < static_cast<size_t>(Ingredient::Count); ++i) {
+        if (recipe[i] > _ingredients[i])
             return false;
-        }
     }
+    return true;
+}
 
-    for (int i = 0; i < static_cast<size_t>(Ingredient::Count); i++) {
+void Stock::consumeIngredients(const Pizza& pizza) {
+    Recipe recipe = getRecipeForPizza(pizza.type);
+    for (size_t i = 0; i < static_cast<size_t>(Ingredient::Count); ++i) {
         _ingredients[i] -= recipe[i];
     }
-    _mutex.unlock();
-    return true;
-};
+}
 
-void Stock::startRestockLoop() {
-    while (_isRunning)
-    {
-        //sleep for time
-        if(!_isRunning) {
+void Stock::waitAndTakeIngredients(const Pizza& pizza) {
+    _mutex.lock();
+    while (!canTakeIngredients(pizza) && _isRunning) {
+        _stockCondition.wait(_mutex);
+    }
+    if (_isRunning) {
+        consumeIngredients(pizza);
+    }
+    _mutex.unlock();
+}
+
+void Stock::restockLoop()
+{
+    while (_isRunning) {
+        //wait
+
+        if (!_isRunning)
             break;
-        }
+
         _mutex.lock();
         regenerate();
         _mutex.unlock();
+
+        _stockCondition.notifyAll();
     }
-};
+}
+
+void Stock::startRestockLoop() {
+    _isRunning = true;
+    _restockThread.start([this] {restockLoop();});
+}
 
 void Stock::stopRestockLoop() {
     _isRunning = false;
 };
 
 std::array<int, static_cast<size_t>(Ingredient::Count)> Stock::getCurrentStock() {
-    return _ingredients;
+    _mutex.lock();
+    std::array<int, static_cast<size_t>(Ingredient::Count)> ingredients = _ingredients;
+    _mutex.unlock();
+    return ingredients;
 };
 
 void Stock::regenerate() {
