@@ -30,7 +30,7 @@ void Reception::runShell() {
             std::cerr << "Invalid Order: " << order << std::endl;
             continue;
         }
-        for (int i = 0; i < pizzaQueue.size(); i++) {
+        for (int i = 0; i < static_cast<int>(pizzaQueue.size()); i++) {
             std::cout << "Pizza: " << pizzaQueue[i].id << std::endl;
         }
     }
