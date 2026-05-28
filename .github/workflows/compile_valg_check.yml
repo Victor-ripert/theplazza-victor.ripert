@@ -20,4 +20,4 @@ jobs:
         run: make
 
       - name: Memory Leak Check (Valgrind)
-        run: valgrind --leak-check=full --error-exitcode=84 ./plazza
+        run: valgrind --leak-check=full --error-exitcode=84 ./plazza 1 1 1
