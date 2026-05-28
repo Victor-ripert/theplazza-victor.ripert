@@ -18,9 +18,9 @@
 
 class Thread {
     public:
-        Thread(std::function<void()> routine);
+        Thread();
         ~Thread();
-        void start();
+        void start(std::function<void()> routine);
         void join();
         void detach();
 

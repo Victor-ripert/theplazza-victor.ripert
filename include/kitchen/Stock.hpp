@@ -17,6 +17,8 @@
 #include <string>
 #include "../utils/Mutex.hpp"
 #include "../common/Pizza.hpp"
+#include "../utils/Thread.hpp"
+#include "../utils/ConditionVariable.hpp"
 #include <array>
 
 class Stock {
@@ -25,15 +27,22 @@ class Stock {
         ~Stock();
 
         using Recipe = std::array<int, static_cast<size_t>(Ingredient::Count)>;
-        bool takeIngredients(const Pizza& pizza);
+        void waitAndTakeIngredients(const Pizza& pizza);
         void startRestockLoop();
         void stopRestockLoop();
         std::array<int, static_cast<size_t>(Ingredient::Count)> getCurrentStock();
         Recipe getRecipeForPizza(PizzaType type);
+
     private:
         void regenerate();
+        void consumeIngredients(const Pizza& pizza);
+        bool canTakeIngredients(const Pizza& pizza);
+        void restockLoop();
+
         int _restockTimeMs;
         bool _isRunning;
+        Thread _restockThread;
+        ConditionVariable _stockCondition;
         std::array<int, static_cast<size_t>(Ingredient::Count)> _ingredients;
         Mutex _mutex;
 };

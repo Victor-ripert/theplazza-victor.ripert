@@ -29,6 +29,7 @@ class ThreadPool {
 
         void enqueuePizza(const Pizza& pizza);
         int getActiveCooks();
+        void endPool();
 
     private:
         void workerRoutine();
