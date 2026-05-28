@@ -5,8 +5,8 @@
 ** Plzza
 */
 
-#include "../../include/reception/Reception.hpp"
-#include "../../include/errors/PlazzaErrors.hpp"
+#include "reception/Reception.hpp"
+#include "errors/PlazzaErrors.hpp"
 #include <iostream>
 
 Reception::Reception(float multiplier, int cooksPerKitchen, int restockTime) : _multiplier(multiplier), _cooksPerKitchen(cooksPerKitchen), _restockTime(restockTime) {
