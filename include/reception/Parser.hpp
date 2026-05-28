@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include "../common/Pizza.hpp"
+#include "../common/PizzaException.hpp"
 
 class Parser {
     public:
