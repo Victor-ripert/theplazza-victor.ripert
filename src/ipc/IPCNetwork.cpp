@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <vector>
+#include <cstdint>
 
 IPCNetwork::IPCNetwork() : _name(""), _fd_in(-1), _fd_out(-1) {}
 
