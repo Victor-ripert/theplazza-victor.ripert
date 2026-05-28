@@ -22,6 +22,8 @@ void Reception::runShell() {
         if (!std::getline(std::cin, order)) {
             throw HighError("Invalid order");
         }
+        if (order == "exit")
+            return;
         try {
             pizzaQueue = _parser.parseCommand(order);
         } catch (LowError &e) {
