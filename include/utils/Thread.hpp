@@ -19,6 +19,7 @@
 class Thread {
     public:
         Thread();
+        Thread(std::function<void()> routine);
         ~Thread();
         void start(std::function<void()> routine);
         void join();

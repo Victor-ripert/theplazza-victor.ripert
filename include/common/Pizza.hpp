@@ -31,6 +31,7 @@ enum class PizzaSize {
 };
 
 struct Pizza {
+    Pizza() : type(PizzaType::Margarita), size(PizzaSize::S), id(0) {};
     Pizza(PizzaType _type, PizzaSize _size, size_t _id) : type(_type), size(_size), id(_id) {};
     PizzaType type;
     PizzaSize size;

@@ -13,6 +13,13 @@ SRC         =   src/main.cpp \
 				src/kitchen/Kitchen.cpp \
 				src/kitchen/Stock.cpp \
 				src/kitchen/ThreadPool.cpp \
+				src/utils/Mutex.cpp \
+				src/utils/ConditionVariable.cpp \
+				src/utils/Thread.cpp \
+				src/utils/Process.cpp \
+				src/utils/Logger.cpp \
+				src/ipc/Serializer.cpp \
+				src/ipc/IPCNetwork.cpp \
         		src/reception/Parser.cpp\
 			  	src/reception/Reception.cpp\
 			  	src/errors/LowError.cpp\
