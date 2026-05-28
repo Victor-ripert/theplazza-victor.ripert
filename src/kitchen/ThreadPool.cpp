@@ -1,4 +1,11 @@
-#include "ThreadPool.hpp"
+/*
+** EPITECH PROJECT, 2026
+** plazza
+** File description:
+** ThreadPool
+*/
+
+#include "kitchen/ThreadPool.hpp"
 
 ThreadPool::ThreadPool(int size, Stock& stock, float multiplier)
     : _stockReference(stock), _multiplier(multiplier), _running(true)

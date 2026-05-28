@@ -1,4 +1,11 @@
-#include "Stock.hpp"
+/*
+** EPITECH PROJECT, 2026
+** plazza
+** File description:
+** Stock
+*/
+
+#include "kitchen/Stock.hpp"
 
 Stock::Stock(int restockTimeMs) : _restockTimeMs(restockTimeMs) {
     _ingredients.fill(5);

@@ -1,4 +1,11 @@
-#include "Kitchen.hpp"
+/*
+** EPITECH PROJECT, 2026
+** plazza
+** File description:
+** Kitchen
+*/
+
+#include "kitchen/Kitchen.hpp"
 
 Kitchen::Kitchen(int cooksCount, int restockTime, float multiplier)
     :_cooksCount(cooksCount), _restockTime(restockTime), _multiplier(multiplier), _stock(_restockTime), _threadPool(_cooksCount, _stock, multiplier) {

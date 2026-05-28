@@ -5,24 +5,27 @@
 ## Makefile
 ##
 
-NAME    =   plazza
+NAME        =   plazza
 
-CC      =   g++
+CXX         =   g++
 
-SRC     =	src/main.c
+SRC         =   src/main.cpp \
+				src/kitchen/Kitchen.cpp \
+				src/kitchen/Stock.cpp \
+				src/kitchen/ThreadPool.cpp \
 
-OBJ     =   $(SRC:.c=.o)
+OBJ         =   $(SRC:.cpp=.o)
 
-CFLAGS  =   -Wall -Wextra -Wno-deprecated-declarations
-DEBUGFLAGS = -g3 -fsanitize=address -fsanitize=leak
-THREADFLAGS = -lpthread
+CXXFLAGS    =   -Wall -Wextra -Wno-deprecated-declarations -I./include
+DEBUGFLAGS  =   -g3 -fsanitize=address
+THREADFLAGS =   -lpthread
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) -o $(NAME) $(OBJ) $(CFLAGS) $(THREADFLAGS)
+	$(CXX) -o $(NAME) $(OBJ) $(CXXFLAGS) $(THREADFLAGS)
 
-debug: CFLAGS += $(DEBUGFLAGS)
+debug: CXXFLAGS += $(DEBUGFLAGS)
 debug: re
 
 clean:
@@ -32,3 +35,5 @@ fclean: clean
 	rm -f $(NAME)
 
 re: fclean all
+
+.PHONY: all debug clean fclean re
