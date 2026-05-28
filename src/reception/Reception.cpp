@@ -13,8 +13,10 @@ Reception::Reception(float multiplier, int cooksPerKitchen, int restockTime) : _
 }
 
 void Reception::runShell() {
+    std::string order;
     while (true) {
-        std::string order;
-        std::cin >> order;
+        if (!std::getline(std::cin, order)) {
+            _parser.parseCommand(order);
+        }
     }
 }
