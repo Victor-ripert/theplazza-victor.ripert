@@ -31,7 +31,7 @@ PizzaType parseType(const std::string &str) {
     auto strLowered = lower(str);
     auto it = types.find(strLowered);
     if (it == types.end())
-        throw PizzaException("Unknown pizza type: " + str);
+        throw LowError("Unknown pizza type: " + str);
     return it->second;
 }
 
@@ -46,22 +46,22 @@ PizzaSize parseSize(const std::string &str) {
     auto strLowered = lower(str);
     auto it = sizes.find(strLowered);
     if (it == sizes.end())
-        throw PizzaException("Unknown pizza size: " + str);
+        throw LowError("Unknown pizza size: " + str);
     return it->second;
 }
 
 int parseQuantity(const std::string &raw) {
     if (raw.size() < 2 || (raw[0] != 'x' && raw[0] != 'X'))
-        throw PizzaException("Invalid quantity: " + raw);
+        throw LowError("Invalid quantity: " + raw);
 
     int qty = 0;
     try {
         qty = std::stoi(raw.substr(1));
     } catch (...) {
-        throw PizzaException("Invalid quantity number: " + raw);
+        throw LowError("Invalid quantity number: " + raw);
     }
     if (qty <= 0)
-        throw PizzaException("Quantity must be > 0");
+        throw LowError("Quantity must be > 0");
     return qty;
 }
 
@@ -78,7 +78,7 @@ std::vector<Pizza> Parser::parseCommand(const std::string &input) {
         std::istringstream subss(pizza);
         std::string typeStr, sizeStr, qtyStr;
         if (!(subss >> typeStr >> sizeStr >> qtyStr))
-            throw PizzaException("Invalid pizza format: " + pizza);
+            throw LowError("Invalid pizza format: " + pizza);
         const PizzaType type = parseType(typeStr);
         const PizzaSize size = parseSize(sizeStr);
         const int qty = parseQuantity(qtyStr);
@@ -87,6 +87,6 @@ std::vector<Pizza> Parser::parseCommand(const std::string &input) {
         }
     }
     if (pizzas.empty())
-        throw PizzaException("No valid pizza in command");
+        throw LowError("No valid pizza in command");
     return pizzas;
 }

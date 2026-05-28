@@ -9,20 +9,24 @@ NAME    =   plazza
 
 CC      =   g++
 
-SRC     =	src/main.c
+SRC     =	src/main.cpp\
+			src/reception/Parser.cpp\
+			src/reception/Reception.cpp\
+			src/errors/LowError.cpp\
+			src/errors/HighError.cpp
 
-OBJ     =   $(SRC:.c=.o)
+OBJ     =   $(SRC:.cpp=.o)
 
-CFLAGS  =   -Wall -Wextra -Wno-deprecated-declarations
+CXXFLAGS  =	-Wall -Wextra -Wno-deprecated-declarations -I./include
 DEBUGFLAGS = -g3 -fsanitize=address -fsanitize=leak
 THREADFLAGS = -lpthread
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) -o $(NAME) $(OBJ) $(CFLAGS) $(THREADFLAGS)
+	$(CC) -o $(NAME) $(OBJ) $(CXXFLAGS) $(THREADFLAGS)
 
-debug: CFLAGS += $(DEBUGFLAGS)
+debug: CXXFLAGS += $(DEBUGFLAGS)
 debug: re
 
 clean:
