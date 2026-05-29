@@ -20,6 +20,9 @@
 #include "../utils/Thread.hpp"
 #include "../utils/ConditionVariable.hpp"
 #include <array>
+#include <chrono>
+#include <thread>
+#include <atomic>
 
 class Stock {
     public:
@@ -40,7 +43,7 @@ class Stock {
         void restockLoop();
 
         int _restockTimeMs;
-        bool _isRunning;
+        std::atomic<bool> _isRunning;
         Thread _restockThread;
         ConditionVariable _stockCondition;
         std::array<int, static_cast<size_t>(Ingredient::Count)> _ingredients;

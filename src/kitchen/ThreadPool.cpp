@@ -38,8 +38,21 @@ int ThreadPool::getActiveCooks() {
     return active;
 };
 
+float ThreadPool::cookTime(const Pizza& pizza) {
+    switch (pizza.type)
+    {
+    case PizzaType::Margarita: return 100 * _multiplier;
+    case PizzaType::Regina: return 200 * _multiplier;
+    case PizzaType::Americana: return 200 * _multiplier;
+    case PizzaType::Fantasia: return 400 * _multiplier;
+    default:
+        return 0.0f;
+    }
+}
+
 void ThreadPool::cook(Pizza &pizza) {
     _stockReference.waitAndTakeIngredients(pizza);
+    std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(cookTime(pizza))));
 };
 
 
@@ -52,6 +65,7 @@ void ThreadPool::workerRoutine() {
             _condition.wait(_queueMutex);
         }
         if (!_running) {
+            _queueMutex.unlock();
             return;
         }
         Pizza pizza = _pizzaQueue.front();
@@ -68,6 +82,8 @@ void ThreadPool::workerRoutine() {
 };
 
 void ThreadPool::endPool() {
-    if (_running)
+    if (_running) {
         _running = false;
+        _condition.notifyAll();
+    }
 }
