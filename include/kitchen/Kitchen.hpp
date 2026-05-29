@@ -18,6 +18,8 @@
 #include "../ipc/Serializer.hpp"
 #include "ThreadPool.hpp"
 #include "Stock.hpp"
+#include <chrono>
+#include <thread>
 
 class Kitchen {
     public:
@@ -32,6 +34,8 @@ class Kitchen {
         int _cooksCount;
         int _restockTime;
         float _multiplier;
+        bool _running;
+        std::chrono::steady_clock::time_point _lastActivityTime;
 
         Serializer _serializer;
         IPCNetwork _ipc;
