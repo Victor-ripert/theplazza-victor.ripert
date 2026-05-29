@@ -26,6 +26,7 @@ void Reception::runShell() {
             return;
         try {
             pizzaQueue = _parser.parseCommand(order);
+            dispatchOrder(pizzaQueue);
         } catch (LowError &e) {
             std::cerr << "Invalid Order: " << order << std::endl;
             continue;
@@ -39,7 +40,7 @@ void Reception::runShell() {
 void sendPizzaToKitchen(std::vector<Pizza>& pizzas, IPCNetwork *kitchenIpc) {
     if (pizzas.size() <= 0)
         return;
-        std::string serializedPizza;
+    std::string serializedPizza;
     Pizza pizza = pizzas.back();
     pizzas.pop_back();
     serializedPizza = Serializer::pack(pizza);
@@ -59,7 +60,7 @@ void Reception::dispatchOrder(std::vector<Pizza>& pizzas) {
         }
     }
     if (pizzas.size() > 0) {
-        for (int i = 0; i < pizzas.size() / (_cooksPerKitchen * 2); i++) {
+        for (size_t i = 0; i < pizzas.size() / (_cooksPerKitchen * 2); i++) {
             spawnNewKitchen();
         }
         dispatchOrder(pizzas);
