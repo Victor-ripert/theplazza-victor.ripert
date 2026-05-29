@@ -123,5 +123,6 @@ $RECYCLE.BIN/
 # Project-specific files
 # -----------------------------------------------------------------------------
 plazza
+infra_test
 *.txt
 *.pdf

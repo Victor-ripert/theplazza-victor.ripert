@@ -32,3 +32,17 @@ void Process::terminate() {
         _pid = -1;
     }
 }
+
+bool Process::isAlive() {
+    if (_pid <= 0)
+        return false;
+    int status;
+    pid_t result = waitpid(_pid, &status, WNOHANG);
+    if (result == 0) {
+        return true;
+    } else if (result == _pid) {
+        _pid = -1;
+        return false;
+    }
+    return false;
+}

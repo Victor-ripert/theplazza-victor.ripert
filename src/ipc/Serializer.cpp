@@ -24,3 +24,22 @@ Pizza Serializer::unpack(const std::string& data) {
     ss >> type >> size >> id;
     return Pizza(static_cast<PizzaType>(type), static_cast<PizzaSize>(size), id);
 }
+
+std::string Serializer::pack(const KitchenStatus& status) {
+    std::stringstream ss;
+    ss << status.pizzaQueueSize << " " << status.activeCooks;
+    for (int i = 0; i < static_cast<int>(Ingredient::Count); ++i) {
+        ss << " " << status.stock[i];
+    }
+    return ss.str();
+}
+
+KitchenStatus Serializer::unpackStatus(const std::string& data) {
+    std::stringstream ss(data);
+    KitchenStatus status;
+    ss >> status.pizzaQueueSize >> status.activeCooks;
+    for (int i = 0; i < static_cast<int>(Ingredient::Count); ++i) {
+        ss >> status.stock[i];
+    }
+    return status;
+}

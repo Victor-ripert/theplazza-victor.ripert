@@ -51,4 +51,10 @@ enum class Ingredient {
     Count
 };
 
+struct KitchenStatus {
+    int pizzaQueueSize;
+    int activeCooks;
+    int stock[static_cast<size_t>(Ingredient::Count)];
+};
+
 #endif

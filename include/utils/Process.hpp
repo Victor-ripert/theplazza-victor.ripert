@@ -22,6 +22,7 @@ class Process {
         pid_t spawn();
         void wait();
         void terminate();
+        bool isAlive();
 
     private:
         pid_t _pid;
