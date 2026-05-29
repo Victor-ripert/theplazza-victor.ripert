@@ -35,3 +35,24 @@ void Reception::runShell() {
         }
     }
 }
+
+void Reception::dispatchOrder(const std::vector<Pizza>& pizzas) {
+    
+}
+
+void Reception::spawnNewKitchen() {
+    Process *new_process = new Process();
+    pid_t pid = new_process->spawn();
+
+    if (pid == 0) {
+        Kitchen kitchen(_cooksPerKitchen, _restockTime, _multiplier);
+        kitchen.run();
+        exit(0);
+    } else if (pid > 0) {
+        _kitchenProcesses.push_back(new_process);
+        IPCNetwork *ipc = new IPCNetwork(std::to_string(pid));
+        _kitchenIPCs.push_back(ipc);
+    } else {
+        throw HighError("Failed to spawn kitchen");
+    }
+}

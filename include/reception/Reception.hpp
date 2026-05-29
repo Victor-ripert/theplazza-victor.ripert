@@ -20,6 +20,7 @@
 #include "../common/Pizza.hpp"
 #include "../ipc/IPCNetwork.hpp"
 #include "../utils/Process.hpp"
+#include "../kitchen/Kitchen.hpp"
 
 class Reception {
     public:
