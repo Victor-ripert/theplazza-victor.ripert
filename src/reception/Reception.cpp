@@ -36,8 +36,34 @@ void Reception::runShell() {
     }
 }
 
-void Reception::dispatchOrder(const std::vector<Pizza>& pizzas) {
-    
+void sendPizzaToKitchen(std::vector<Pizza>& pizzas, IPCNetwork *kitchenIpc) {
+    if (pizzas.size() <= 0)
+        return;
+        std::string serializedPizza;
+    Pizza pizza = pizzas.back();
+    pizzas.pop_back();
+    serializedPizza = Serializer::pack(pizza);
+    (*kitchenIpc) << serializedPizza;
+}
+
+void Reception::dispatchOrder(std::vector<Pizza>& pizzas) {
+    int nbPizzaInQueue = 0;
+    for (IPCNetwork *kitchenIpc : _kitchenIPCs) {
+        std::string pizzaQueue;
+        (*kitchenIpc) >> pizzaQueue;
+        nbPizzaInQueue = std::stoi(pizzaQueue);
+        if (nbPizzaInQueue >= 2 * _cooksPerKitchen)
+            continue;
+        for (int i = 0; i < _cooksPerKitchen - nbPizzaInQueue; i++) {
+            sendPizzaToKitchen(pizzas, kitchenIpc);
+        }
+    }
+    if (pizzas.size() > 0) {
+        for (int i = 0; i < pizzas.size() / (_cooksPerKitchen * 2)) {
+            spawnNewKitchen();
+        }
+        dispatchOrder(pizzas);
+    }
 }
 
 void Reception::spawnNewKitchen() {

@@ -31,7 +31,7 @@ class Reception {
         void displayStatus();
 
     private:
-        void dispatchOrder(const std::vector<Pizza>& pizzas);
+        void dispatchOrder(std::vector<Pizza>& pizzas);
         void spawnNewKitchen();
 
         float _multiplier;
