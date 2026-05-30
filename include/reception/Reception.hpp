@@ -40,8 +40,8 @@ class Reception {
         int _restockTime;
 
         Parser _parser;
-        std::vector<Process*> _kitchenProcesses;
-        std::vector<IPCNetwork*> _kitchenIPCs;
+        std::vector<std::unique_ptr<Process>> _kitchenProcesses;
+        std::vector<std::unique_ptr<IPCNetwork>> _kitchenIPCs;
 };
 
 #endif
