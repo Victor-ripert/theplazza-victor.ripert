@@ -37,6 +37,20 @@ void Reception::runShell() {
     }
 }
 
+void Reception::checkCloseKitchen() {
+    for (size_t i = 0; i < _kitchenProcesses.size(); ) {
+        if (!_kitchenProcesses[i]->isAlive()) {
+            delete _kitchenProcesses[i];
+            delete _kitchenIPCs[i];
+
+            _kitchenProcesses.erase(_kitchenProcesses.begin() + i);
+            _kitchenIPCs.erase(_kitchenIPCs.begin() + i);
+        } else {
+            ++i;
+        }
+    }
+}
+
 void sendPizzaToKitchen(std::vector<Pizza>& pizzas, IPCNetwork *kitchenIpc) {
     if (pizzas.size() <= 0)
         return;
@@ -48,14 +62,14 @@ void sendPizzaToKitchen(std::vector<Pizza>& pizzas, IPCNetwork *kitchenIpc) {
 }
 
 void Reception::dispatchOrder(std::vector<Pizza>& pizzas) {
-    int nbPizzaInQueue = 0;
+    KitchenStatus status;
     for (IPCNetwork *kitchenIpc : _kitchenIPCs) {
-        std::string pizzaQueue;
-        (*kitchenIpc) >> pizzaQueue;
-        nbPizzaInQueue = std::stoi(pizzaQueue);
-        if (nbPizzaInQueue >= 2 * _cooksPerKitchen)
+        std::string statusStr;
+        (*kitchenIpc) >> statusStr;
+        status = Serializer::unpackStatus(statusStr);
+        if (status.pizzaQueueSize >= 2 * _cooksPerKitchen)
             continue;
-        for (int i = 0; i < _cooksPerKitchen - nbPizzaInQueue; i++) {
+        for (int i = 0; i < _cooksPerKitchen - status.pizzaQueueSize; i++) {
             sendPizzaToKitchen(pizzas, kitchenIpc);
         }
     }

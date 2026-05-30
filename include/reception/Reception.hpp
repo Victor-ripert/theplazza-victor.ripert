@@ -33,6 +33,7 @@ class Reception {
     private:
         void dispatchOrder(std::vector<Pizza>& pizzas);
         void spawnNewKitchen();
+        void checkCloseKitchen();
 
         float _multiplier;
         int _cooksPerKitchen;
