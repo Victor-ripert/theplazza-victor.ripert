@@ -43,3 +43,12 @@ KitchenStatus Serializer::unpackStatus(const std::string& data) {
     }
     return status;
 }
+
+std::string Serializer::packStatus(const KitchenStatus& status) {
+    std::stringstream ss;
+    ss << status.pizzaQueueSize << " " << status.activeCooks;
+    for (int i = 0; i < static_cast<int>(Ingredient::Count); ++i) {
+        ss << " " << status.stock[i];
+    }
+    return ss.str();
+}

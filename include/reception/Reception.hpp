@@ -20,6 +20,7 @@
 #include "../common/Pizza.hpp"
 #include "../ipc/IPCNetwork.hpp"
 #include "../utils/Process.hpp"
+#include "../kitchen/Kitchen.hpp"
 
 class Reception {
     public:
@@ -30,16 +31,17 @@ class Reception {
         void displayStatus();
 
     private:
-        void dispatchOrder(const std::vector<Pizza>& pizzas);
+        void dispatchOrder(std::vector<Pizza>& pizzas);
         void spawnNewKitchen();
+        void checkCloseKitchen();
 
         float _multiplier;
         int _cooksPerKitchen;
         int _restockTime;
 
         Parser _parser;
-        std::vector<Process*> _kitchenProcesses;
-        std::vector<IPCNetwork*> _kitchenIPCs;
+        std::vector<std::unique_ptr<Process>> _kitchenProcesses;
+        std::vector<std::unique_ptr<IPCNetwork>> _kitchenIPCs;
 };
 
 #endif

@@ -23,6 +23,7 @@ class Serializer {
         static Pizza unpack(const std::string& data);
         static std::string pack(const KitchenStatus& status);
         static KitchenStatus unpackStatus(const std::string& data);
+        static std::string packStatus(const KitchenStatus& status);
 };
 
 #endif

@@ -31,6 +31,14 @@ void ThreadPool::enqueuePizza(const Pizza& pizza) {
     _condition.notifyOne();
 };
 
+int ThreadPool::getQueueSize() {
+    int queueSize = 0;
+    _queueMutex.lock();
+    queueSize = _pizzaQueue.size();
+    _queueMutex.unlock();
+    return queueSize;
+}
+
 int ThreadPool::getActiveCooks() {
     _activeMutex.lock();
     int active = _activeCooks;
