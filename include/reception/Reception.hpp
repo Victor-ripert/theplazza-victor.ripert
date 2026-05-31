@@ -14,32 +14,44 @@
 #ifndef RECEPTION_HPP_
     #define RECEPTION_HPP_
 
+#include "Parser.hpp"
 #include <vector>
 #include <string>
-#include "Parser.hpp"
-#include "../common/Pizza.hpp"
-#include "../ipc/IPCNetwork.hpp"
 #include "../utils/Process.hpp"
+#include "../ipc/IPCNetwork.hpp"
+#include "../ipc/Serializer.hpp"
+#include "../utils/Logger.hpp"
 
 class Reception {
+    struct KitchenProxy {
+        Process* process;
+        IPCNetwork* ipc;
+        KitchenStatus lastStatus;
+        std::string name;
+        bool active;
+    };
+
     public:
         Reception(float multiplier, int cooksPerKitchen, int restockTime);
         ~Reception();
 
         void runShell();
-        void displayStatus();
 
     private:
-        void dispatchOrder(const std::vector<Pizza>& pizzas);
-        void spawnNewKitchen();
+        void dispatchPizza(const Pizza& pizza);
+        void updateKitchens();
+        void spawnKitchen();
+        void displayStatus();
+        void logPizza(const Pizza& pizza);
 
         float _multiplier;
         int _cooksPerKitchen;
         int _restockTime;
 
         Parser _parser;
-        std::vector<Process*> _kitchenProcesses;
-        std::vector<IPCNetwork*> _kitchenIPCs;
+        Logger _logger;
+        std::vector<KitchenProxy> _kitchens;
+        size_t _kitchenCounter = 0;
 };
 
 #endif

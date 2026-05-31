@@ -21,7 +21,7 @@
 
 class Kitchen {
     public:
-        Kitchen(int cooksCount, int restockTime, float multiplier);
+        Kitchen(int cooksCount, int restockTime, float multiplier, const std::string& ipcName);
         ~Kitchen();
 
         void run();
@@ -31,7 +31,6 @@ class Kitchen {
 
         int _cooksCount;
         int _restockTime;
-        float _multiplier;
 
         Serializer _serializer;
         IPCNetwork _ipc;

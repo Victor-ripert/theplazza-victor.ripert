@@ -6,6 +6,7 @@
 */
 
 #include "kitchen/Stock.hpp"
+#include <unistd.h>
 
 Stock::Stock(int restockTimeMs) : _restockTimeMs(restockTimeMs){
     _ingredients.fill(5);
@@ -84,7 +85,7 @@ void Stock::waitAndTakeIngredients(const Pizza& pizza) {
 void Stock::restockLoop()
 {
     while (_isRunning) {
-        //wait
+        usleep(_restockTimeMs * 1000);
 
         if (!_isRunning)
             break;

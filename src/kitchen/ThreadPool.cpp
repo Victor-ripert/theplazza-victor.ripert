@@ -6,6 +6,7 @@
 */
 
 #include "kitchen/ThreadPool.hpp"
+#include <unistd.h>
 
 ThreadPool::ThreadPool(int size, Stock& stock, float multiplier)
     : _stockReference(stock), _multiplier(multiplier), _running(true)
@@ -40,6 +41,14 @@ int ThreadPool::getActiveCooks() {
 
 void ThreadPool::cook(Pizza &pizza) {
     _stockReference.waitAndTakeIngredients(pizza);
+    float bakingTime = 0;
+    switch (pizza.type) {
+        case PizzaType::Margarita: bakingTime = 1; break;
+        case PizzaType::Regina: bakingTime = 2; break;
+        case PizzaType::Americana: bakingTime = 2; break;
+        case PizzaType::Fantasia: bakingTime = 4; break;
+    }
+    usleep(bakingTime * _multiplier * 1000000);
 };
 
 
@@ -64,10 +73,31 @@ void ThreadPool::workerRoutine() {
         _activeMutex.lock();
             _activeCooks -= 1;
         _activeMutex.unlock();
+        _completedMutex.lock();
+        _completedPizzas.push(pizza);
+        _completedMutex.unlock();
     }
 };
 
+std::vector<Pizza> ThreadPool::getCompletedPizzas() {
+    std::vector<Pizza> completed;
+    _completedMutex.lock();
+    while (!_completedPizzas.empty()) {
+        completed.push_back(_completedPizzas.front());
+        _completedPizzas.pop();
+    }
+    _completedMutex.unlock();
+    return completed;
+}
+
+int ThreadPool::getQueueSize() {
+    _queueMutex.lock();
+    int size = _pizzaQueue.size();
+    _queueMutex.unlock();
+    return size;
+}
+
 void ThreadPool::endPool() {
-    if (_running)
-        _running = false;
+    _running = false;
+    _condition.notifyAll();
 }

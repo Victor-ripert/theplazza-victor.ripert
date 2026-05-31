@@ -14,29 +14,30 @@
 #include <vector>
 #include <cstdint>
 
-IPCNetwork::IPCNetwork() : _name(""), _fd_in(-1), _fd_out(-1) {}
+IPCNetwork::IPCNetwork() : _name(""), _isChild(false), _fd_in(-1), _fd_out(-1) {}
 
-IPCNetwork::IPCNetwork(const std::string& name) : _name(name), _fd_in(-1), _fd_out(-1) {
-    std::string name_in = _name + "_in";
-    std::string name_out = _name + "_out";
+IPCNetwork::IPCNetwork(const std::string& name, bool isChild) : _name(name), _isChild(isChild), _fd_in(-1), _fd_out(-1) {
+    std::string name_req = "/tmp/" + _name + "_req";
+    std::string name_res = "/tmp/" + _name + "_res";
     
-    mkfifo(name_in.c_str(), 0666);
-    mkfifo(name_out.c_str(), 0666);
+    mkfifo(name_req.c_str(), 0666);
+    mkfifo(name_res.c_str(), 0666);
 }
 
 IPCNetwork::~IPCNetwork() {
     if (_fd_in != -1) close(_fd_in);
     if (_fd_out != -1) close(_fd_out);
     
-    unlink((_name + "_in").c_str());
-    unlink((_name + "_out").c_str());
+    if (!_isChild) {
+        unlink(("/tmp/" + _name + "_req").c_str());
+        unlink(("/tmp/" + _name + "_res").c_str());
+    }
 }
 
 void IPCNetwork::send(const std::string& message) {
     if (_fd_out == -1) {
-        // Open the "out" pipe for writing. 
-        // This blocks until the other side opens it for reading.
-        _fd_out = open((_name + "_out").c_str(), O_WRONLY);
+        std::string fifo_out = _isChild ? "/tmp/" + _name + "_res" : "/tmp/" + _name + "_req";
+        _fd_out = open(fifo_out.c_str(), O_WRONLY);
     }
     if (_fd_out != -1) {
         uint32_t size = message.size();
@@ -46,18 +47,14 @@ void IPCNetwork::send(const std::string& message) {
 }
 
 std::string IPCNetwork::receive() {
-    if (_fd_in == -1) {
-        // Open the "in" pipe for reading.
-        // This blocks until the other side opens it for writing.
-        _fd_in = open((_name + "_in").c_str(), O_RDONLY);
-    }
-    if (_fd_in != -1) {
+    int fd = getFdIn();
+    if (fd != -1) {
         uint32_t size = 0;
-        ssize_t bytes = read(_fd_in, &size, sizeof(size));
+        ssize_t bytes = read(fd, &size, sizeof(size));
         if (bytes <= 0)
             return "";
         std::vector<char> buffer(size);
-        bytes = read(_fd_in, buffer.data(), size);
+        bytes = read(fd, buffer.data(), size);
         if (bytes <= 0)
             return "";
         return std::string(buffer.begin(), buffer.end());
@@ -65,12 +62,20 @@ std::string IPCNetwork::receive() {
     return "";
 }
 
+IPCNetwork& IPCNetwork::operator>>(std::string& message) {
+    message = receive();
+    return *this;
+}
+
 IPCNetwork& IPCNetwork::operator<<(const std::string& message) {
     send(message);
     return *this;
 }
 
-IPCNetwork& IPCNetwork::operator>>(std::string& message) {
-    message = receive();
-    return *this;
+int IPCNetwork::getFdIn() {
+    if (_fd_in == -1) {
+        std::string fifo_in = _isChild ? "/tmp/" + _name + "_req" : "/tmp/" + _name + "_res";
+        _fd_in = open(fifo_in.c_str(), O_RDONLY | O_NONBLOCK);
+    }
+    return _fd_in;
 }

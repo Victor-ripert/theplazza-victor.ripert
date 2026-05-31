@@ -18,7 +18,7 @@
 class IPCNetwork {
     public:
         IPCNetwork();
-        IPCNetwork(const std::string& name);
+        IPCNetwork(const std::string& name, bool isChild);
         ~IPCNetwork();
 
         void send(const std::string& message);
@@ -27,8 +27,11 @@ class IPCNetwork {
         IPCNetwork& operator<<(const std::string& message);
         IPCNetwork& operator>>(std::string& message);
 
+        int getFdIn();
+
     private:
         std::string _name;
+        bool _isChild;
         int _fd_in;
         int _fd_out;
 };

@@ -30,6 +30,8 @@ class ThreadPool {
         void enqueuePizza(const Pizza& pizza);
         int getActiveCooks();
         void endPool();
+        std::vector<Pizza> getCompletedPizzas();
+        int getQueueSize();
 
     private:
         void workerRoutine();
@@ -37,8 +39,10 @@ class ThreadPool {
 
         std::vector<std::unique_ptr<Thread>> _workers;
         std::queue<Pizza> _pizzaQueue;
+        std::queue<Pizza> _completedPizzas;
         Mutex _queueMutex;
         Mutex _activeMutex;
+        Mutex _completedMutex;
         ConditionVariable _condition;
 
         Stock& _stockReference;
