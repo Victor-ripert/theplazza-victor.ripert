@@ -13,7 +13,7 @@ Kitchen::Kitchen(int cooksCount, int restockTime, float multiplier, pid_t pid)
     :_cooksCount(cooksCount), _restockTime(restockTime), _multiplier(multiplier), _stock(_restockTime), _threadPool(_cooksCount, _stock, multiplier) {
         _stock.startRestockLoop();
         _lastActivityTime = std::chrono::steady_clock::now();
-        _ipc = IPCNetwork(std::to_string(pid));
+        _ipc = IPCNetwork(std::to_string(pid), true);
         _running = true;
 };
 

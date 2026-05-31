@@ -14,12 +14,26 @@
 #include <vector>
 #include <cstdint>
 
-IPCNetwork::IPCNetwork() : _name(""), _fd_in(-1), _fd_out(-1) {}
+IPCNetwork::IPCNetwork() : _name(""), _fd_in(-1), _fd_out(-1), _reversed(false) {}
 
-IPCNetwork::IPCNetwork(const std::string& name) : _name(name), _fd_in(-1), _fd_out(-1) {
+IPCNetwork::IPCNetwork(const std::string& name) : _name(name), _fd_in(-1), _fd_out(-1), _reversed(false) {
     std::string name_in = _name + "_in";
     std::string name_out = _name + "_out";
-    
+
+    unlink(name_in.c_str());
+    unlink(name_out.c_str());
+
+    mkfifo(name_in.c_str(), 0666);
+    mkfifo(name_out.c_str(), 0666);
+}
+
+IPCNetwork::IPCNetwork(const std::string& name, bool reversed) : _name(name), _fd_in(-1), _fd_out(-1), _reversed(reversed) {
+    std::string name_in = _name + "_in";
+    std::string name_out = _name + "_out";
+
+    unlink(name_in.c_str());
+    unlink(name_out.c_str());
+
     mkfifo(name_in.c_str(), 0666);
     mkfifo(name_out.c_str(), 0666);
 }
@@ -27,16 +41,17 @@ IPCNetwork::IPCNetwork(const std::string& name) : _name(name), _fd_in(-1), _fd_o
 IPCNetwork::~IPCNetwork() {
     if (_fd_in != -1) close(_fd_in);
     if (_fd_out != -1) close(_fd_out);
-    
+
     unlink((_name + "_in").c_str());
     unlink((_name + "_out").c_str());
 }
 
 void IPCNetwork::send(const std::string& message) {
     if (_fd_out == -1) {
-        // Open the "out" pipe for writing. 
+        // Open the "out" pipe for writing.
         // This blocks until the other side opens it for reading.
-        _fd_out = open((_name + "_out").c_str(), O_WRONLY);
+        std::string fifo_name = _reversed ? (_name + "_in") : (_name + "_out");
+        _fd_out = open(fifo_name.c_str(), O_WRONLY);
     }
     if (_fd_out != -1) {
         uint32_t size = message.size();
@@ -49,7 +64,8 @@ std::string IPCNetwork::receive() {
     if (_fd_in == -1) {
         // Open the "in" pipe for reading.
         // This blocks until the other side opens it for writing.
-        _fd_in = open((_name + "_in").c_str(), O_RDONLY);
+        std::string fifo_name = _reversed ? (_name + "_out") : (_name + "_in");
+        _fd_in = open(fifo_name.c_str(), O_RDONLY);
     }
     if (_fd_in != -1) {
         uint32_t size = 0;

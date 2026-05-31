@@ -19,6 +19,7 @@ class IPCNetwork {
     public:
         IPCNetwork();
         IPCNetwork(const std::string& name);
+        IPCNetwork(const std::string& name, bool reversed);
         ~IPCNetwork();
 
         void send(const std::string& message);
@@ -31,6 +32,7 @@ class IPCNetwork {
         std::string _name;
         int _fd_in;
         int _fd_out;
+        bool _reversed;
 };
 
 #endif

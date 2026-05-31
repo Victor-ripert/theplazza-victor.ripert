@@ -8,6 +8,7 @@
 #include "reception/Reception.hpp"
 #include "errors/PlazzaErrors.hpp"
 #include <iostream>
+#include <unistd.h>
 
 Reception::Reception(float multiplier, int cooksPerKitchen, int restockTime) : _multiplier(multiplier), _cooksPerKitchen(cooksPerKitchen), _restockTime(restockTime) {
     _parser = Parser();
@@ -26,11 +27,8 @@ void Reception::runShell() {
             return;
         try {
             pizzaQueue = _parser.parseCommand(order);
-            std::cout << "entre parser et check close" << std::endl;
             checkCloseKitchen();
-            std::cout << "entre check close et deispatch" << std::endl;
             dispatchOrder(pizzaQueue);
-            std::cout << "after dispatch" << std::endl;
         } catch (LowError &e) {
             std::cerr << "Invalid Order: " << order << std::endl;
             continue;
@@ -64,19 +62,19 @@ void sendPizzaToKitchen(std::vector<Pizza>& pizzas, IPCNetwork& kitchenIpc) {
 
 void Reception::dispatchOrder(std::vector<Pizza>& pizzas) {
     KitchenStatus status;
-    std::cout << "Before loop kitchepIpcs" << std::endl;
-    for (auto& kitchenIpc : _kitchenIPCs) {
+    for (size_t i = 0; i < _kitchenIPCs.size() && !pizzas.empty(); i++) {
         std::string statusStr;
-        (*kitchenIpc) >> statusStr;
-        std::cout << statusStr << std::endl;
-        status = Serializer::unpackStatus(statusStr);
+        *_kitchenIPCs[i] >> statusStr;
+        std::cout << "After ipc >> status" << std::endl;
+        KitchenStatus status = Serializer::unpackStatus(statusStr);
         if (status.pizzaQueueSize >= 2 * _cooksPerKitchen)
             continue;
-        for (int i = 0; i < _cooksPerKitchen - status.pizzaQueueSize; i++) {
-            sendPizzaToKitchen(pizzas, *kitchenIpc);
+        while (status.pizzaQueueSize < 2 * _cooksPerKitchen && !pizzas.empty()) {
+            sendPizzaToKitchen(pizzas, *_kitchenIPCs[i]);
+            status.pizzaQueueSize++;
         }
     }
-    if (pizzas.size() > 0) {
+    if (!pizzas.empty()) {
         for (size_t i = 0; i < pizzas.size() / (_cooksPerKitchen * 2); i++) {
             spawnNewKitchen();
         }
@@ -89,7 +87,7 @@ void Reception::spawnNewKitchen() {
     pid_t pid = new_process->spawn();
 
     if (pid == 0) {
-        Kitchen kitchen(_cooksPerKitchen, _restockTime, _multiplier, pid);
+        Kitchen kitchen(_cooksPerKitchen, _restockTime, _multiplier, getpid());
         kitchen.run();
         exit(0);
     } else if (pid > 0) {
