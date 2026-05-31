@@ -31,6 +31,7 @@ class ThreadPool {
         ~ThreadPool();
 
         void enqueuePizza(const Pizza& pizza);
+        int getQueueSize();
         int getActiveCooks();
         void endPool();
 

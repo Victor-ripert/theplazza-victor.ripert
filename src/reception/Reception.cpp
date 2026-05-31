@@ -26,8 +26,11 @@ void Reception::runShell() {
             return;
         try {
             pizzaQueue = _parser.parseCommand(order);
+            std::cout << "entre parser et check close" << std::endl;
             checkCloseKitchen();
+            std::cout << "entre check close et deispatch" << std::endl;
             dispatchOrder(pizzaQueue);
+            std::cout << "after dispatch" << std::endl;
         } catch (LowError &e) {
             std::cerr << "Invalid Order: " << order << std::endl;
             continue;
@@ -61,9 +64,11 @@ void sendPizzaToKitchen(std::vector<Pizza>& pizzas, IPCNetwork& kitchenIpc) {
 
 void Reception::dispatchOrder(std::vector<Pizza>& pizzas) {
     KitchenStatus status;
+    std::cout << "Before loop kitchepIpcs" << std::endl;
     for (auto& kitchenIpc : _kitchenIPCs) {
         std::string statusStr;
         (*kitchenIpc) >> statusStr;
+        std::cout << statusStr << std::endl;
         status = Serializer::unpackStatus(statusStr);
         if (status.pizzaQueueSize >= 2 * _cooksPerKitchen)
             continue;
@@ -84,11 +89,11 @@ void Reception::spawnNewKitchen() {
     pid_t pid = new_process->spawn();
 
     if (pid == 0) {
-        Kitchen kitchen(_cooksPerKitchen, _restockTime, _multiplier);
+        Kitchen kitchen(_cooksPerKitchen, _restockTime, _multiplier, pid);
         kitchen.run();
         exit(0);
     } else if (pid > 0) {
-        _kitchenProcesses.push_back(new_process);
+        _kitchenProcesses.push_back(std::move(new_process));
         _kitchenIPCs.push_back(std::make_unique<IPCNetwork>(std::to_string(pid)));
     } else {
         throw HighError("Failed to spawn kitchen");

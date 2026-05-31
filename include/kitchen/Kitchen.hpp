@@ -23,13 +23,14 @@
 
 class Kitchen {
     public:
-        Kitchen(int cooksCount, int restockTime, float multiplier);
+        Kitchen(int cooksCount, int restockTime, float multiplier, pid_t pid);
         ~Kitchen();
 
         void run();
 
     private:
         void checkInactivityTimeout();
+        void sendStatus();
 
         int _cooksCount;
         int _restockTime;
