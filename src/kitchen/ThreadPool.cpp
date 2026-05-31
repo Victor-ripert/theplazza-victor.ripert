@@ -32,12 +32,32 @@ void ThreadPool::enqueuePizza(const Pizza& pizza) {
     _condition.notifyOne();
 };
 
+int ThreadPool::getQueueSize() {
+    int queueSize = 0;
+    _queueMutex.lock();
+    queueSize = _pizzaQueue.size();
+    _queueMutex.unlock();
+    return queueSize;
+}
+
 int ThreadPool::getActiveCooks() {
     _activeMutex.lock();
     int active = _activeCooks;
     _activeMutex.unlock();
     return active;
 };
+
+float ThreadPool::cookTime(const Pizza& pizza) {
+    switch (pizza.type)
+    {
+    case PizzaType::Margarita: return 100 * _multiplier;
+    case PizzaType::Regina: return 200 * _multiplier;
+    case PizzaType::Americana: return 200 * _multiplier;
+    case PizzaType::Fantasia: return 400 * _multiplier;
+    default:
+        return 0.0f;
+    }
+}
 
 void ThreadPool::cook(Pizza &pizza) {
     _stockReference.waitAndTakeIngredients(pizza);
@@ -61,6 +81,7 @@ void ThreadPool::workerRoutine() {
             _condition.wait(_queueMutex);
         }
         if (!_running) {
+            _queueMutex.unlock();
             return;
         }
         Pizza pizza = _pizzaQueue.front();

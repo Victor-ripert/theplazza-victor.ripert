@@ -48,7 +48,6 @@ Stock::Recipe Stock::getRecipeForPizza(PizzaType type) {
             recipe[static_cast<size_t>(Ingredient::GoatCheese)] = 1;
             recipe[static_cast<size_t>(Ingredient::ChiefLove)] = 1;
             break;
-
         default:
             break;
     }
@@ -82,8 +81,7 @@ void Stock::waitAndTakeIngredients(const Pizza& pizza) {
     _mutex.unlock();
 }
 
-void Stock::restockLoop()
-{
+void Stock::restockLoop() {
     while (_isRunning) {
         usleep(_restockTimeMs * 1000);
 
@@ -100,12 +98,14 @@ void Stock::restockLoop()
 
 void Stock::startRestockLoop() {
     _isRunning = true;
-    _restockThread.start([this] {restockLoop();});
+    _restockThread.start([this] { restockLoop(); });
 }
 
 void Stock::stopRestockLoop() {
     _isRunning = false;
-};
+    _stockCondition.notifyAll();
+    _restockThread.join();
+}
 
 std::array<int, static_cast<size_t>(Ingredient::Count)> Stock::getCurrentStock() {
     _mutex.lock();
@@ -115,7 +115,7 @@ std::array<int, static_cast<size_t>(Ingredient::Count)> Stock::getCurrentStock()
 };
 
 void Stock::regenerate() {
-    for(auto & ingredient : _ingredients) {
+    for (auto& ingredient : _ingredients) {
         ingredient += 1;
     }
-};
+}

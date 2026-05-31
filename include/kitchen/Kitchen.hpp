@@ -18,6 +18,8 @@
 #include "../ipc/Serializer.hpp"
 #include "ThreadPool.hpp"
 #include "Stock.hpp"
+#include <chrono>
+#include <thread>
 
 class Kitchen {
     public:
@@ -28,6 +30,7 @@ class Kitchen {
 
     private:
         void checkInactivityTimeout();
+        void sendStatus();
 
         int _cooksCount;
         int _restockTime;

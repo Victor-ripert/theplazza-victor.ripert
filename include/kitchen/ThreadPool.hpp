@@ -21,6 +21,9 @@
 #include "../utils/ConditionVariable.hpp"
 #include "../common/Pizza.hpp"
 #include "Stock.hpp"
+#include <chrono>
+#include <thread>
+#include <atomic>
 
 class ThreadPool {
     public:
@@ -28,6 +31,7 @@ class ThreadPool {
         ~ThreadPool();
 
         void enqueuePizza(const Pizza& pizza);
+        int getQueueSize();
         int getActiveCooks();
         void endPool();
         std::vector<Pizza> getCompletedPizzas();
@@ -36,6 +40,7 @@ class ThreadPool {
     private:
         void workerRoutine();
         void cook(Pizza &pizza);
+        float cookTime(const Pizza& pizza);
 
         std::vector<std::unique_ptr<Thread>> _workers;
         std::queue<Pizza> _pizzaQueue;
@@ -48,7 +53,7 @@ class ThreadPool {
         Stock& _stockReference;
         float _multiplier;
         int _activeCooks = 0;
-        bool _running;
+        std::atomic<bool> _running;
 };
 
 #endif
